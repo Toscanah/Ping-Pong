@@ -1,38 +1,42 @@
 package client;
 
-import client.Connection;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
-    private static final Scanner scanner = new Scanner(System.in);
-
     public static void main(String[] args) throws IOException {
+        Player player = new Player("127.0.0.1", 6666);
 
-        Connection conn = new Connection("127.0.0.1", 6666);
-
-        Thread getMessagesThread = new Thread(() -> {
-            while (conn.isActive()) {
+        // TODO: change name of thread
+        Thread getOtherPlayerCoordsThread = new Thread(() -> {
+            while (player.isActive()) {
                 try {
-                    String message = conn.getMessage();
-                    System.out.println(message);
+                    JSONObject coords = player.getOtherPlayerCoords();
+                    // TODO: draw other player with coordinates
                 } catch (IOException e) {
-                    conn.shutdown();
-                    break;
+                    throw new RuntimeException(e);
                 }
             }
         });
 
-        getMessagesThread.start();
+        getOtherPlayerCoordsThread.start();
+
+        /* TODO: come gestisco le coordinate?
+        il while qua sotto dovrebbe leggere le coordinate dal canvas
+        e mandarle al server
+        però le coordinate le ho già dentro a "Player"
+        di conseguenza quand'è che aggiorno le coordinate?
+        come gestisco l'input da utente (freccie)
+         */
 
         while (true) {
-            String message = scanner.nextLine();
-            if (message.equalsIgnoreCase("/leave")) {
-                conn.shutdown();
-                break;
-            }
-            conn.sendMessage(message);
+            JSONObject coords = new JSONObject();
+            // TODO:
+
+            player.setCoordinates(x, y);
+            player.sendCoordinates(coords);
         }
     }
 }

@@ -14,16 +14,9 @@ public class Campo extends Frame implements ActionListener, Runnable, WindowList
     int yship = 200;
     int larship = 30;
     int altship = 10;
-    int dimost = 26;
 
     public Campo() {
-        int tempx;
-        int tempy;
         Random numerocasuale = new Random();
-        for (int i = 0; i < numost; i++) {
-            tempx = 150 + (numerocasuale.nextInt(18) * 30);
-            tempy = 5 + (numerocasuale.nextInt(14) * 30);
-        }
         setLayout(new BorderLayout());
         add("North", lblScore);
         add("Center", c);
@@ -51,7 +44,6 @@ public class Campo extends Frame implements ActionListener, Runnable, WindowList
         (new Thread(this)).start();
         g.setColor(Color.GREEN);
         g.fillRect(xship, yship, larship, altship);
-
     }
 
     public void muoviship(KeyEvent evt) {
@@ -68,42 +60,51 @@ public class Campo extends Frame implements ActionListener, Runnable, WindowList
     public void run() {
         while (true) {
             try {
-                Thread.currentThread().sleep(1);
-            } catch (Exception e) {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-            ;
+
             g.setColor(Color.GRAY);
             g.fillRect(0, 0, 699, 499);
             g.setColor(Color.GREEN);
             g.fillRect(xship, yship, larship, altship);
             g.setColor(Color.RED);
-            for (int i = 0; i < numost; i++) {
-                g.fillRect(o[i].posizionex(), o[i].posizioney(), o[i].posizionex1() - o[i].posizionex(), o[i].posizioney1() - o[i].posizioney());
-                if (o[i].collisione(xship, yship, xship + larship, yship + altship)) Thread.currentThread().stop();
-            }
         }
     }
 
-    public void windowClosing(WindowEvent e) {
-        System.exit(0);  // terminate the program
-    }
-
+    @Override
     public void windowOpened(WindowEvent e) {
+
     }
 
+    @Override
+    public void windowClosing(WindowEvent e) {
+
+    }
+
+    @Override
     public void windowClosed(WindowEvent e) {
+
     }
 
+    @Override
     public void windowIconified(WindowEvent e) {
+
     }
 
+    @Override
     public void windowDeiconified(WindowEvent e) {
+
     }
 
+    @Override
     public void windowActivated(WindowEvent e) {
+
     }
 
+    @Override
     public void windowDeactivated(WindowEvent e) {
-    }
 
+    }
 }
