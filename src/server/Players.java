@@ -22,4 +22,13 @@ public class Players {
     public void addPlayer(PlayerHandler handler) {
         players.add(handler);
     }
+
+    public PlayerHandler getOtherPlayer(PlayerHandler sender) {
+        for (PlayerHandler player : players) {
+            if (!player.equals(sender)) {
+                return player;
+            }
+        }
+        return null;
+    }
 }
