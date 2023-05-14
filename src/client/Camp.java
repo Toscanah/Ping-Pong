@@ -1,76 +1,97 @@
 package client;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+
+import javafx.scene.canvas.Canvas;
 
 import static util.Dimensions.*;
 
-public class Camp extends Canvas {
+public class Camp extends Application {
+    private int playerX;
     private int playerY;
+    private int opponentX;
     private int opponentY;
-
     private int ballX;
     private int ballY;
 
-    private JFrame frame;
+    private boolean isSecondPlayer;
+    private Canvas canvas;
 
-    public Camp() {
-        frame = new JFrame("Pong");
-        setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
-        setBackground(Color.WHITE);
-        setFocusable(true);
-        KeyListener inputListener = new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                switch (e.getKeyCode()) {
-                    case KeyEvent.VK_UP, KeyEvent.VK_W -> {
-                        if (playerY - PLAYER_STEP > 0) {
-                            playerY -= PLAYER_STEP;
-                        }
-                    }
-                    case KeyEvent.VK_DOWN, KeyEvent.VK_S -> {
-                        if (playerY + PLAYER_STEP < CANVAS_HEIGHT - PLAYER_HEIGHT) {
-                            playerY += PLAYER_STEP;
-                        }
-                    }
-                }
-                repaint();
-            }
-        };
-        addKeyListener(inputListener);
-
-        frame.add(this);
-        frame.pack();
-        frame.setVisible(true);
-
-        playerY = 0;
-        opponentY = 0;
-    }
-
-    private void drawPlayer(Graphics g) {
-        g.setColor(Color.BLUE);
-        g.fillRect(0, playerY, PLAYER_WIDTH, PLAYER_HEIGHT);
-    }
-
-    private void drawOpponent(Graphics g) {
-        g.setColor(Color.BLUE);
-        g.fillRect(CANVAS_WIDTH - PLAYER_WIDTH, opponentY, PLAYER_WIDTH, PLAYER_HEIGHT);
-    }
-
-    private void drawBall(Graphics g) {
-        int diameter = Math.min(BALL_WIDTH, BALL_HEIGHT);
-        g.setColor(Color.BLACK);
-        g.fillOval(ballX, ballY, diameter, diameter);
+    public static void main(String[] args) {
+        launch(args);
     }
 
     @Override
-    public void paint(Graphics g) {
+    public void start(Stage stage) throws Exception {
+        playerX = 0;
+        opponentX = CANVAS_WIDTH - PLAYER_WIDTH;
+
+        playerY = 0;
+        opponentY = 0;
+
+        ballX = CANVAS_WIDTH / 2;
+        ballY = CANVAS_HEIGHT / 2;
+
+        isSecondPlayer = false;
+
+        canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+        canvas.setFocusTraversable(true);
+        canvas.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case UP, W -> {
+                    if (playerY - PLAYER_STEP > 0) {
+                        playerY -= PLAYER_STEP;
+                    }
+                }
+                case DOWN, S -> {
+                    if (playerY + PLAYER_STEP < CANVAS_HEIGHT - PLAYER_HEIGHT) {
+                        playerY += PLAYER_STEP;
+                    }
+                }
+            }
+            redraw();
+        });
+
+        StackPane root = new StackPane(canvas);
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.setTitle("Pong");
+        stage.show();
+
+        redraw();
+    }
+
+    private void drawPlayer(GraphicsContext g) {
+        g.setFill(Color.BLUE);
+        g.fillRect(playerX, playerY, PLAYER_WIDTH, PLAYER_HEIGHT);
+    }
+
+    private void drawOpponent(GraphicsContext g) {
+        g.setFill(Color.BLUE);
+        g.fillRect(opponentX, opponentY, PLAYER_WIDTH, PLAYER_HEIGHT);
+    }
+
+    private void drawBall(GraphicsContext g) {
+        int diameter = Math.min(BALL_WIDTH, BALL_HEIGHT);
+        g.setFill(Color.BLACK);
+        g.fillOval(ballX, ballY, diameter, diameter);
+    }
+
+    public void redraw() {
+        GraphicsContext g = canvas.getGraphicsContext2D();
+        g.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         drawPlayer(g);
         drawOpponent(g);
         drawBall(g);
+    }
+
+    public int getPlayerX() {
+        return playerX;
     }
 
     public int getPlayerY() {
@@ -79,24 +100,23 @@ public class Camp extends Canvas {
 
     public void setOpponentY(int opponentY) {
         this.opponentY = opponentY;
-        repaint();
-    }
-
-    public int getBallX() {
-        return ballX;
+        redraw();
     }
 
     public void setBallX(int ballX) {
         this.ballX = ballX;
-        repaint();
-    }
-
-    public int getBallY() {
-        return ballY;
+        redraw();
     }
 
     public void setBallY(int ballY) {
         this.ballY = ballY;
-        repaint();
+        redraw();
+    }
+
+    public void setSecondPlayer(boolean secondPlayer) {
+        isSecondPlayer = secondPlayer;
+        playerX = CANVAS_WIDTH - PLAYER_WIDTH;
+        opponentX = 0;
+        redraw();
     }
 }

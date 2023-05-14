@@ -2,6 +2,14 @@
   <library name="json-20230227">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/json-20230227.jar!/" />
+      <root url="jar://$PROJECT_DIR$/javafx-sdk-20.0.1/lib/javafx-swt.jar!/" />
+      <root url="jar://$PROJECT_DIR$/javafx-sdk-20.0.1/lib/javafx.base.jar!/" />
+      <root url="jar://$PROJECT_DIR$/javafx-sdk-20.0.1/lib/javafx.controls.jar!/" />
+      <root url="jar://$PROJECT_DIR$/javafx-sdk-20.0.1/lib/javafx.fxml.jar!/" />
+      <root url="jar://$PROJECT_DIR$/javafx-sdk-20.0.1/lib/javafx.graphics.jar!/" />
+      <root url="jar://$PROJECT_DIR$/javafx-sdk-20.0.1/lib/javafx.media.jar!/" />
+      <root url="jar://$PROJECT_DIR$/javafx-sdk-20.0.1/lib/javafx.swing.jar!/" />
+      <root url="jar://$PROJECT_DIR$/javafx-sdk-20.0.1/lib/javafx.web.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

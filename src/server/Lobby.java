@@ -2,6 +2,7 @@ package server;
 
 import org.json.JSONObject;
 
+import java.awt.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -12,61 +13,93 @@ public class Lobby {
     private final int port;
     private final Ball ball;
 
+    private int xStep = 1;
+    private int yStep = 1;
+    private int ballTouchCount = 0;
+    private int ballSpeedMultiplier = 1;
+
     public Lobby(int port) {
         this.port = port;
-        ball = new Ball(800 / 2, 100);
+        ball = new Ball(CANVAS_WIDTH / 2, CANVAS_WIDTH / 2);
     }
 
-    public void listen() throws IOException {
-        ServerSocket serverSocket = new ServerSocket(port);
+    public void listen() {
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            while (Players.getInstance().getPlayers().size() != 2) {
+                Socket clientSocket = serverSocket.accept();
+                PlayerHandler playerHandler = new PlayerHandler(clientSocket);
+                Thread connectionThread = new Thread(playerHandler);
+                connectionThread.start();
 
-        while (Players.getInstance().getPlayers().size() != 1) {
-            Socket clientSocket = serverSocket.accept();
-            PlayerHandler playerHandler = new PlayerHandler(clientSocket);
-            Thread connectionThread = new Thread(playerHandler);
-            connectionThread.start();
+                if (Players.getInstance().getPlayers().size() == 2) {
+                    playerHandler.setSecondPlayer();
+                }
+            }
+            startBalling();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        startBalling();
     }
 
     private void startBalling() {
         while (true) {
             try {
-                Thread.sleep(200);
+                Thread.sleep(50);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
 
-            // questo è il controllo per la pallina con la sua direzione di default
-            // ma cambia tutto con l'altro giocatore
+            Rectangle ballRect = new Rectangle(
+                    ball.getX(), ball.getY(), BALL_WIDTH, BALL_HEIGHT
+            );
 
-            int xStep = BALL_STEP;
-            int yStep = BALL_STEP;
+            for (PlayerHandler player : Players.getInstance().getPlayers()) {
+                Rectangle playerRect = new Rectangle(
+                        player.getX(), player.getY(), PLAYER_WIDTH, PLAYER_HEIGHT
+                );
 
-            if (ball.getX() == 0 || ball.getX() == CANVAS_WIDTH - 50) {
-                xStep = -xStep;
+                if (ballRect.getBounds().intersects(playerRect.getBounds())) {
+                    xStep = -xStep;
+                    yStep = -yStep;
+                    ballTouchCount++;
+                }
             }
 
-            if (ball.getY() == 0 || ball.getY() == CANVAS_HEIGHT - 50) {
+            if (ballTouchCount > 0) {
+                //ballSpeedMultiplier += ballTouchCount * 0.1;
+            }
+
+            int newX = ball.getX() + (BALL_STEP * xStep * ballSpeedMultiplier);
+            int newY = ball.getY() + (BALL_STEP * yStep * ballSpeedMultiplier);
+
+            if (newY < 0) {
                 yStep = -yStep;
             }
 
-            ball.setX(ball.getX() + xStep);
-            ball.setY(ball.getY() + yStep);
+            if (newY + BALL_HEIGHT > CANVAS_HEIGHT) {
+                yStep = -yStep;
+            }
 
-            // TODO: problema, come faccio a detectare la collusione con le coordinate specchiate?
-            // con un player è easy, ma con l'altro?
+            if (newX == 0) {
+                // Ball touches the left border, player 2 wins
+                // TODO: handle player 2 win
+            }
 
-            PlayerHandler player1 = Players.getInstance().getPlayers().get(0);
-            //PlayerHandler player2 = Players.getInstance().getPlayers().get(1);
+            if (newX + BALL_WIDTH == CANVAS_WIDTH) {
+                // Ball touches the right border, player 1 wins
+                // TODO: handle player 1 win
+            }
 
-            JSONObject data = new JSONObject();
-            data.put("ballX", ball.getX());
-            data.put("ballY", ball.getY());
+            ball.setX(ball.getX() + (BALL_STEP * xStep * ballSpeedMultiplier));
+            ball.setY(ball.getY() + (BALL_STEP * yStep * ballSpeedMultiplier));
 
-            player1.sendBallCoordinates(data);
+            JSONObject ballData = new JSONObject();
+            ballData.put("ballX", ball.getX());
+            ballData.put("ballY", ball.getY());
 
-            // guardare soluzioni chatGPT
+            for (PlayerHandler player : Players.getInstance().getPlayers()) {
+                player.sendBallCoordinates(ballData);
+            }
         }
     }
 }

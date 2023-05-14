@@ -1,29 +1,31 @@
 package client;
 
-import org.json.JSONObject;
+import javafx.application.Application;
 
 import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        Player player = new Player("localhost", 5845, new Camp());
+        Camp camp = new Camp();
+        Player player = new Player("localhost", 5845, camp);
 
-        Thread recievingThread = new Thread(() -> {
-            while (player.isActive()) {
+
+        Application.launch(Camp.class);
+
+
+        Thread receivingThread = new Thread(() -> {
+            while (true) {
                 try {
-                    player.getCoordinates();
+                    player.getData();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
         });
-
-        recievingThread.start();
+        receivingThread.start();
 
         while (true) {
-            player.sendPlayerY();
-            //Thread.sleep(500);
-            System.out.println("?");
+            player.sendData();
         }
     }
 }

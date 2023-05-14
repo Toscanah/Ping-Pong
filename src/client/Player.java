@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Player {
-    private Camp camp;
+    private final Camp camp;
 
     private Socket socket;
     private BufferedReader in;
@@ -22,18 +22,23 @@ public class Player {
         this.camp = camp;
     }
 
-    public void sendPlayerY() {
+    public void sendData() {
         JSONObject data = new JSONObject();
         data.put("opponentY", camp.getPlayerY());
-        out.println(data);
+        data.put("opponentX", camp.getPlayerX());
 
         System.out.println(data);
+        out.println(data);
     }
 
-    public void getCoordinates() throws IOException {
+    public void getData() throws IOException {
         JSONObject data = new JSONObject(in.readLine());
+        System.out.println("Incoming data: " + data);
 
-        // modo terribile per gestire i JSON
+        if (data.has("secondPlayer")) {
+            camp.setSecondPlayer(data.getBoolean("secondPlayer"));
+        }
+
         if (data.has("opponentY")) {
             camp.setOpponentY(data.getInt("opponentY"));
         }
@@ -42,9 +47,5 @@ public class Player {
             camp.setBallX(data.getInt("ballX"));
             camp.setBallY(data.getInt("ballY"));
         }
-    }
-
-    public boolean isActive() {
-        return !socket.isClosed();
     }
 }

@@ -12,6 +12,9 @@ public class PlayerHandler implements Runnable {
     private final BufferedReader in;
     private final PrintWriter out;
 
+    private int x;
+    private int y;
+
     public PlayerHandler(Socket clientSocket) throws IOException {
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -23,12 +26,18 @@ public class PlayerHandler implements Runnable {
     public void run() {
         while (true) {
             try {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
                 JSONObject data = new JSONObject(in.readLine());
 
-                if (Players.getInstance().getPlayers().size() == 2) {
-                    //Thread.sleep(500);
+                x = data.getInt("opponentX");
+                y = data.getInt("opponentY");
 
-                    System.out.println("player " + Players.getInstance().getPlayers().indexOf(this) + ": " + data);
+                if (Players.getInstance().getPlayers().size() == 2) {
                     Players.getInstance().getOtherPlayer(this).sendOpponentCoordinates(data);
                 }
             } catch (IOException e) {
@@ -43,5 +52,17 @@ public class PlayerHandler implements Runnable {
 
     public void sendBallCoordinates(JSONObject data) {
         out.println(data);
+    }
+
+    public void setSecondPlayer() {
+        out.println(new JSONObject().put("secondPlayer", true));
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 }
