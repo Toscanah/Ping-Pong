@@ -9,10 +9,6 @@ public class Main {
         Camp camp = new Camp();
         Player player = new Player("localhost", 5845, camp);
 
-
-        Application.launch(Camp.class);
-
-
         Thread receivingThread = new Thread(() -> {
             while (true) {
                 try {

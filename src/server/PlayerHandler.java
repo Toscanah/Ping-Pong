@@ -36,6 +36,7 @@ public class PlayerHandler implements Runnable {
 
                 x = data.getInt("opponentX");
                 y = data.getInt("opponentY");
+                System.out.println(data);
 
                 if (Players.getInstance().getPlayers().size() == 2) {
                     Players.getInstance().getOtherPlayer(this).sendOpponentCoordinates(data);
