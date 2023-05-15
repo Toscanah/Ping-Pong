@@ -6,6 +6,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Random;
 
 import static util.Dimensions.*;
 
@@ -18,7 +19,7 @@ public class Lobby {
 
     public Lobby(int port) {
         this.port = port;
-        ball = new Ball(CANVAS_WIDTH / 2, CANVAS_WIDTH / 2);
+        ball = new Ball(CANVAS_WIDTH / 2, new Random().nextInt(CANVAS_HEIGHT));
     }
 
     public void listen() {
@@ -33,9 +34,10 @@ public class Lobby {
                     playerHandler.setSecondPlayer();
                 }
             }
+            Thread.sleep(5000);
             startBalling();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -107,6 +109,12 @@ public class Lobby {
 
     private void restartGame() {
         ball.setX(CANVAS_WIDTH / 2);
-        ball.setY(CANVAS_HEIGHT / 2);
+        ball.setY(new Random().nextInt(CANVAS_HEIGHT));
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -162,6 +162,7 @@ public class Camp extends Canvas {
         isSecondPlayer = secondPlayer;
         playerX = CANVAS_WIDTH - PLAYER_WIDTH;
         opponentX = 0;
+        frame.setLocation(CANVAS_WIDTH, 0);
         repaint();
     }
 
