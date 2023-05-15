@@ -5,7 +5,7 @@ import javafx.application.Application;
 import java.io.IOException;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         Camp camp = new Camp();
         Player player = new Player("localhost", 5845, camp);
 
@@ -21,6 +21,11 @@ public class Main {
         receivingThread.start();
 
         while (true) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             player.sendData();
         }
     }

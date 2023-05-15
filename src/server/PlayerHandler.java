@@ -26,17 +26,10 @@ public class PlayerHandler implements Runnable {
     public void run() {
         while (true) {
             try {
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
                 JSONObject data = new JSONObject(in.readLine());
 
                 x = data.getInt("opponentX");
                 y = data.getInt("opponentY");
-                System.out.println(data);
 
                 if (Players.getInstance().getPlayers().size() == 2) {
                     Players.getInstance().getOtherPlayer(this).sendOpponentCoordinates(data);
@@ -57,6 +50,10 @@ public class PlayerHandler implements Runnable {
 
     public void setSecondPlayer() {
         out.println(new JSONObject().put("secondPlayer", true));
+    }
+
+    public void sendScore(JSONObject data) {
+        out.println(data);
     }
 
     public int getX() {

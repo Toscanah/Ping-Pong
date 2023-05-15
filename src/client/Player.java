@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Random;
+
+import static util.Dimensions.*;
 
 public class Player {
     private final Camp camp;
@@ -21,20 +22,22 @@ public class Player {
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
         this.camp = camp;
-        camp.repaint();
     }
 
     public void sendData() {
         JSONObject data = new JSONObject();
+
         data.put("opponentY", camp.getPlayerY());
         data.put("opponentX", camp.getPlayerX());
 
+        //System.out.println("\t\t Sto mandando: " + data.getInt("opponentY"));
         out.println(data);
     }
 
     public void getData() throws IOException {
         JSONObject data = new JSONObject(in.readLine());
-        System.out.println("Incoming data: " + data);
+
+        //System.out.println("\t\t\t\t\t\tSto ricevendo: " + data);
 
         if (data.has("secondPlayer")) {
             camp.setSecondPlayer(data.getBoolean("secondPlayer"));
@@ -47,6 +50,14 @@ public class Player {
         if (data.has("ballX") && data.has("ballY")) {
             camp.setBallX(data.getInt("ballX"));
             camp.setBallY(data.getInt("ballY"));
+        }
+
+        if (data.has("rightWon")) {
+            camp.addScore("opponent");
+        }
+
+        if (data.has("leftWon")) {
+            camp.addScore("player");
         }
     }
 }

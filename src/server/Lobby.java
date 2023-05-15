@@ -13,10 +13,8 @@ public class Lobby {
     private final int port;
     private final Ball ball;
 
-    private int xStep = 1;
+    private int xStep = -1;
     private int yStep = 1;
-    private int ballTouchCount = 0;
-    private int ballSpeedMultiplier = 1;
 
     public Lobby(int port) {
         this.port = port;
@@ -44,7 +42,7 @@ public class Lobby {
     private void startBalling() {
         while (true) {
             try {
-                Thread.sleep(50);
+                Thread.sleep(30);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -60,17 +58,11 @@ public class Lobby {
 
                 if (ballRect.getBounds().intersects(playerRect.getBounds())) {
                     xStep = -xStep;
-                    yStep = -yStep;
-                    ballTouchCount++;
                 }
             }
 
-            if (ballTouchCount > 0) {
-                //ballSpeedMultiplier += ballTouchCount * 0.1;
-            }
-
-            int newX = ball.getX() + (BALL_STEP * xStep * ballSpeedMultiplier);
-            int newY = ball.getY() + (BALL_STEP * yStep * ballSpeedMultiplier);
+            int newX = ball.getX() + (BALL_STEP * xStep);
+            int newY = ball.getY() + (BALL_STEP * yStep);
 
             if (newY < 0) {
                 yStep = -yStep;
@@ -80,18 +72,28 @@ public class Lobby {
                 yStep = -yStep;
             }
 
-            if (newX == 0) {
-                // Ball touches the left border, player 2 wins
-                // TODO: handle player 2 win
+            if (newX + BALL_WIDTH == 0) {
+                JSONObject data = new JSONObject().put("rightWon", true);
+
+                for (PlayerHandler player : Players.getInstance().getPlayers()) {
+                    player.sendScore(data);
+                }
+
+                restartGame();
             }
 
             if (newX + BALL_WIDTH == CANVAS_WIDTH) {
-                // Ball touches the right border, player 1 wins
-                // TODO: handle player 1 win
+                JSONObject data = new JSONObject().put("leftWon", true);
+
+                for (PlayerHandler player : Players.getInstance().getPlayers()) {
+                    player.sendScore(data);
+                }
+
+                restartGame();
             }
 
-            ball.setX(ball.getX() + (BALL_STEP * xStep * ballSpeedMultiplier));
-            ball.setY(ball.getY() + (BALL_STEP * yStep * ballSpeedMultiplier));
+            ball.setX(ball.getX() + (BALL_STEP * xStep));
+            ball.setY(ball.getY() + (BALL_STEP * yStep));
 
             JSONObject ballData = new JSONObject();
             ballData.put("ballX", ball.getX());
@@ -101,5 +103,10 @@ public class Lobby {
                 player.sendBallCoordinates(ballData);
             }
         }
+    }
+
+    private void restartGame() {
+        ball.setX(CANVAS_WIDTH / 2);
+        ball.setY(CANVAS_HEIGHT / 2);
     }
 }
